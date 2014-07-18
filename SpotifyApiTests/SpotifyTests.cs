@@ -49,5 +49,27 @@ namespace SpotifyTests
                 album.Uri == "spotify:album:3eAA4fvTVttgUlE43vRVMq" && 
                 album.ArtistUri == "spotify:artist:2TI7qyDE0QfyOlnbtfDo7L");
         }
+
+        [TestMethod]
+        public void TrackSearchFindsResults()
+        {
+            Spotify api = new Spotify();
+
+            var trackResults = api.FindTrack("Moon Trance");
+            Assert.IsTrue(trackResults.Count() > 0);
+        }
+
+        [TestMethod]
+        public void TrackSearchCorrectFirstResult()
+        {
+            Spotify api = new Spotify();
+
+            var trackResults = api.FindTrack("Moon Trance");
+            var track = trackResults.OrderByDescending(a => a.Popularity).First();
+            Assert.IsTrue(track.Name == "Moon Trance" &&
+                track.Uri == "spotify:track:3hG8BApT5ep4mdGleYiCdL" &&
+                track.ArtistUri == "spotify:artist:378dH6EszOLFShpRzAQkVM" &&
+                track.AlbumUri == "spotify:album:3YTWAm90osBvLNWCdF8Nq2");
+        }
     }
 }

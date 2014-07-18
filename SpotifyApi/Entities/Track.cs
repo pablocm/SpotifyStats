@@ -10,7 +10,7 @@ namespace SpotifyApi.Entities
     {
         public string Name { get; internal set; }
         public double Popularity { get; internal set; }
-        public string ArtistUri { get; internal set; }
+        public string ArtistUri { get; internal set; } // TODO: Tracks with several artists.
         public string AlbumUri { get; internal set; }
         public int TrackNumber { get; internal set; }
         public double Length { get; internal set; }
