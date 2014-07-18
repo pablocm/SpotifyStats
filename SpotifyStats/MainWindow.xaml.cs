@@ -12,6 +12,8 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using SpotifyApi;
+using SpotifyApi.Entities;
 
 namespace SpotifyStats
 {
@@ -20,9 +22,20 @@ namespace SpotifyStats
     /// </summary>
     public partial class MainWindow : Window
     {
+
         public MainWindow()
         {
             InitializeComponent();
+        }
+
+        private void searchTextBox_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            string query = searchTextBox.Text;
+
+            var api = new Spotify();
+            var artists = api.FindArtist(query);
+
+            resultsListBox.ItemsSource = artists;
         }
     }
 }
