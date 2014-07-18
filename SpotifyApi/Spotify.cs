@@ -59,9 +59,19 @@ namespace SpotifyApi
         /// Search for albums using the query string.
         /// </summary>
         /// <param name="query">The search keyword(s).</param>
-        public static IEnumerable<Artist> FindAlbum(string query)
+        public IEnumerable<Album> FindAlbum(string query)
         {
-            throw new NotImplementedException();
+            XDocument document = DoApiRequest(String.Format(albumSearchFormat, query));
+            var albums = from album in document.Descendants(ns + "album")
+                          select new Album
+                          {
+                              Name = album.Element(ns + "name").Value,
+                              Popularity = Double.Parse(album.Element(ns + "popularity").Value),
+                              ArtistUri = album.Descendants(ns + "artist").Single().Attribute("href").Value,
+                              Uri = album.Attribute("href") != null ? album.Attribute("href").Value : String.Empty
+                          };
+
+            return albums;
         }
     }
 }
