@@ -13,7 +13,9 @@ namespace SpotifyApiTests
         [TestMethod]
         public void ArtistSearchFindsResults()
         {
-            var artistResults = Spotify.FindArtist("Savant");
+            Spotify api = new Spotify();
+
+            var artistResults = api.FindArtist("Savant");
             Assert.IsTrue(artistResults.Count() > 0);
         }
     }
