@@ -14,7 +14,6 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 using SpotifyApi;
-using SpotifyApi.Entities;
 using SpotifyStats.Db;
 
 namespace SpotifyStats
@@ -29,6 +28,17 @@ namespace SpotifyStats
         public MainWindow()
         {
             InitializeComponent();
+        }
+
+        /// <summary>
+        /// Connects to database and displays downloaded artists.
+        /// </summary>
+        private void Window_Loaded(object sender, RoutedEventArgs e)
+        {
+            using (AppDbContext db = new AppDbContext())
+            {
+                downloadedListBox.ItemsSource = db.Artists.OrderBy(a => a.Name).ToList();
+            }
         }
 
         /// <summary>
@@ -66,7 +76,18 @@ namespace SpotifyStats
         private void DownloadButton_Click(object sender, RoutedEventArgs e)
         {
             var btn = (Button)sender;
+            // TODO
             MessageBox.Show(btn.Tag.ToString());
+        }
+
+        /// <summary>
+        /// Load artist summary and stats into view.
+        /// </summary>
+        private void downloadedListBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            var artist = (Artist)e.AddedItems[0];
+            // TODO
+            MessageBox.Show(artist.Name);
         }
     }
 }
