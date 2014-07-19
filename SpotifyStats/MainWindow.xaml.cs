@@ -22,20 +22,28 @@ namespace SpotifyStats
     /// </summary>
     public partial class MainWindow : Window
     {
+        bool searchInProgress = false;
 
         public MainWindow()
         {
             InitializeComponent();
+            progressBar.Visibility = System.Windows.Visibility.Collapsed;
         }
 
-        private void searchTextBox_TextChanged(object sender, TextChangedEventArgs e)
+        private async void searchTextBox_TextChanged(object sender, TextChangedEventArgs e)
         {
-            string query = searchTextBox.Text;
+            string query = searchTextBox.Text.Trim();
+            if (String.IsNullOrEmpty(query) || searchInProgress)
+                return;
 
+            searchInProgress = true;
+            progressBar.Visibility = System.Windows.Visibility.Visible;
             var api = new Spotify();
-            var artists = api.FindArtist(query);
+            var artists = await api.FindArtistAsync(query);
 
             resultsListBox.ItemsSource = artists;
+            progressBar.Visibility = System.Windows.Visibility.Collapsed;
+            searchInProgress = false;
         }
     }
 }

@@ -26,10 +26,10 @@ namespace SpotifyApi
         /// Requests data through the Spotify Metadata API and returns the XML response.
         /// </summary>
         /// <param name="requestString">The request URL string.</param>
-        private XDocument DoApiRequest(string requestUrl)
+        private async Task<XDocument> DoApiRequestAsync(string requestUrl)
         {
             WebRequest request = WebRequest.Create(apiUrl + requestUrl);
-            using (HttpWebResponse response = (HttpWebResponse)request.GetResponse())
+            using (HttpWebResponse response = await request.GetResponseAsync() as HttpWebResponse)
             {
                 if (response.StatusCode != HttpStatusCode.OK)
                     throw new Exception("API not available. Status code: " + response.StatusCode);
@@ -42,9 +42,9 @@ namespace SpotifyApi
         /// Search for artists using the query string.
         /// </summary>
         /// <param name="query">The search keyword(s).</param>
-        public IEnumerable<Artist> FindArtist(string query)
+        public async Task<IEnumerable<Artist>> FindArtistAsync(string query)
         {
-            XDocument document = DoApiRequest(String.Format(artistSearchFormat, query));
+            XDocument document = await DoApiRequestAsync(String.Format(artistSearchFormat, query));
             var artists = from artist in document.Descendants(ns + "artist")
                           select new Artist
                           {
@@ -60,9 +60,9 @@ namespace SpotifyApi
         /// Search for albums using the query string.
         /// </summary>
         /// <param name="query">The search keyword(s).</param>
-        public IEnumerable<Album> FindAlbum(string query)
+        public async Task<IEnumerable<Album>> FindAlbumAsync(string query)
         {
-            XDocument document = DoApiRequest(String.Format(albumSearchFormat, query));
+            XDocument document = await DoApiRequestAsync(String.Format(albumSearchFormat, query));
             var albums = from album in document.Descendants(ns + "album")
                          select new Album
                          {
@@ -79,9 +79,9 @@ namespace SpotifyApi
         /// Search for tracks using the query string.
         /// </summary>
         /// <param name="query">The search keyword(s).</param>
-        public IEnumerable<Track> FindTrack(string query)
+        public async Task<IEnumerable<Track>> FindTrackAsync(string query)
         {
-            XDocument document = DoApiRequest(String.Format(trackSearchFormat, query));
+            XDocument document = await DoApiRequestAsync(String.Format(trackSearchFormat, query));
             var tracks = from track in document.Descendants(ns + "track")
                          select new Track
                          {

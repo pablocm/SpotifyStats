@@ -12,6 +12,7 @@
             <TextBlock HorizontalAlignment="Left" TextWrapping="Wrap" Text="Search artists:" VerticalAlignment="Center"/>
             <TextBox x:Name="searchTextBox" Margin="5" TextWrapping="Wrap" Text="" Width="120" VerticalContentAlignment="Center" TextChanged="searchTextBox_TextChanged"/>
         </StackPanel>
+        <ProgressBar x:Name="progressBar" HorizontalAlignment="Right" Height="10" Margin="10" VerticalAlignment="Center" Width="50" IsIndeterminate="True"/>
         <ListBox x:Name="resultsListBox" HorizontalAlignment="Stretch" Margin="10" Grid.Row="1" VerticalAlignment="Stretch">
             <ListBox.ItemTemplate>
                 <DataTemplate>
