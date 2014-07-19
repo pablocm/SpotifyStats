@@ -71,6 +71,7 @@
     <Compile Include="Db\Album.cs" />
     <Compile Include="Db\AppDbContext.cs" />
     <Compile Include="Db\Artist.cs" />
+    <Compile Include="Db\ArtistRepository.cs" />
     <Compile Include="Db\Track.cs" />
     <Compile Include="MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>
@@ -85,6 +86,10 @@
     <Compile Include="Migrations\201407191640212_AddedIndices.cs" />
     <Compile Include="Migrations\201407191640212_AddedIndices.Designer.cs">
       <DependentUpon>201407191640212_AddedIndices.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201407192126172_AddedFK.cs" />
+    <Compile Include="Migrations\201407192126172_AddedFK.Designer.cs">
+      <DependentUpon>201407192126172_AddedFK.cs</DependentUpon>
     </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Properties\AssemblyInfo.cs">
@@ -105,6 +110,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201407191640212_AddedIndices.resx">
       <DependentUpon>201407191640212_AddedIndices.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201407192126172_AddedFK.resx">
+      <DependentUpon>201407192126172_AddedFK.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>

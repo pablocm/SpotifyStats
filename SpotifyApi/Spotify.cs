@@ -105,17 +105,25 @@ namespace SpotifyApi
         public async Task<Artist> LookupArtistAsync(string artistUri)
         {
             XDocument document = await DoApiRequestAsync(String.Format(lookupExtrasFormat, artistUri, "album"));
-            var artists = from artist in document.Descendants(ns + "artist")
-                         select new Artist
-                         {
-                             Name = artist.Element(ns + "name").Value,
-                             //Popularity = Double.Parse(artist.Element(ns + "popularity").Value),
-                             Uri = artistUri,
-                             Albums = from album in artist.Element(ns + "albums").Descendants(ns + "album")
-                                      select LookupAlbumAsync(album.Attribute("href").Value).Result
-                         };
+            var detailedArtist = (from artist in document.Descendants(ns + "artist")
+                                 select new Artist
+                                 {
+                                     Name = artist.Element(ns + "name").Value,
+                                     //Popularity = Double.Parse(artist.Element(ns + "popularity").Value),
+                                     Uri = artistUri,
+                                     //Albums = from album in artist.Element(ns + "albums").Descendants(ns + "album")
+                                     //         select LookupAlbumAsync(album.Attribute("href").Value).Result
+                                 }).First();
 
-            return artists.FirstOrDefault();
+            var albumUris = from album in document.Descendants(ns + "artist").Elements(ns + "albums").Descendants(ns + "album")
+                            select album.Attribute("href").Value;
+            
+            var albums = new List<Album>();
+            foreach (var albumUri in albumUris)
+                albums.Add(await LookupAlbumAsync(albumUri));
+            detailedArtist.Albums = albums;
+
+            return detailedArtist;
         }
 
         /// <summary>
@@ -130,6 +138,7 @@ namespace SpotifyApi
                          {
                              Name = album.Element(ns + "name").Value,
                              //Popularity = Double.Parse(album.Element(ns + "popularity").Value),
+                             Released = Int32.Parse(album.Element(ns + "released").Value),
                              ArtistUri = album.Elements(ns + "artist").First().Attribute("href") != null ? album.Elements(ns + "artist").First().Attribute("href").Value : String.Empty,
                              Uri = albumUri,
                              Tracks = from track in album.Element(ns + "tracks").Elements()

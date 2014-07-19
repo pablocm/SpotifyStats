@@ -16,7 +16,7 @@ namespace SpotifyStats.Db
         public string Name { get; set; }
         public double Popularity { get; set; }
 
-        public virtual List<Album> Albums { get; set; }
-        public virtual List<Track> Tracks { get; set; }
+        public virtual ICollection<Album> Albums { get; set; }
+        public virtual ICollection<Track> Tracks { get; set; }
     }
 }

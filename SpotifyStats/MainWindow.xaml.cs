@@ -25,10 +25,31 @@ namespace SpotifyStats
     public partial class MainWindow : Window
     {
         bool searchInProgress = false;
+        int workingTasks = 0;
 
         public MainWindow()
         {
             InitializeComponent();
+        }
+
+        /// <summary>
+        /// Keeps track of how many works are in progress and shows/hides the progress bar accordingly.
+        /// </summary>
+        private void WorkStarted()
+        {
+            workingTasks++;
+            if (workingTasks > 0)
+                progressBar.Visibility = System.Windows.Visibility.Visible;
+        }
+
+        /// <summary>
+        /// Keeps track of how many works are in progress and shows/hides the progress bar accordingly.
+        /// </summary>
+        private void WorkFinished()
+        {
+            workingTasks--;
+            if (workingTasks == 0)
+                progressBar.Visibility = System.Windows.Visibility.Hidden;
         }
 
         /// <summary>
@@ -52,7 +73,7 @@ namespace SpotifyStats
                 return;
 
             searchInProgress = true;
-            progressBar.Visibility = System.Windows.Visibility.Visible;
+            WorkStarted();
             try
             {
                 var api = new Spotify();
@@ -66,7 +87,7 @@ namespace SpotifyStats
             }
             finally
             {
-                progressBar.Visibility = System.Windows.Visibility.Hidden;
+                WorkFinished();
                 searchInProgress = false;
             }
         }
@@ -77,16 +98,28 @@ namespace SpotifyStats
         private async void DownloadButton_Click(object sender, RoutedEventArgs e)
         {
             var btn = (Button)sender;
-            // TODO
-            MessageBox.Show(btn.Tag.ToString());
+            var artistUri = btn.Tag.ToString();
 
-            var api = new Spotify();
-            var artist = await api.LookupArtistAsync(btn.Tag.ToString());
-
+            WorkStarted();
+            btn.IsEnabled = false;
             using (var db = new AppDbContext())
             {
-                //........
+                // Check if its already in DB.
+                if ((await db.Artists.FindAsync(artistUri)) == null)
+                {
+                    // Download data
+                    var api = new Spotify();
+                    var artist = await api.LookupArtistAsync(btn.Tag.ToString());
+
+                    // Save the data
+                    ArtistRepository ar = new ArtistRepository(db);
+                    await ar.SaveSpotifyArtistAsync(artist);
+
+                    // Refresh the viewlist
+                    downloadedListBox.ItemsSource = await db.Artists.OrderBy(a => a.Name).ToListAsync();
+                }
             }
+            WorkFinished();
         }
 
         /// <summary>

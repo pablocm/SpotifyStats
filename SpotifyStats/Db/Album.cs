@@ -19,6 +19,6 @@ namespace SpotifyStats.Db
         public int Released { get; set; }
 
         public Artist Artist { get; set; }
-        public virtual List<Track> Tracks { get; set; }
+        public virtual ICollection<Track> Tracks { get; set; }
     }
 }
