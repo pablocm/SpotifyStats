@@ -74,11 +74,19 @@ namespace SpotifyStats
         /// <summary>
         /// Downloads the currently selected artist's data.
         /// </summary>
-        private void DownloadButton_Click(object sender, RoutedEventArgs e)
+        private async void DownloadButton_Click(object sender, RoutedEventArgs e)
         {
             var btn = (Button)sender;
             // TODO
             MessageBox.Show(btn.Tag.ToString());
+
+            var api = new Spotify();
+            var artist = await api.LookupArtistAsync(btn.Tag.ToString());
+
+            using (var db = new AppDbContext())
+            {
+                //........
+            }
         }
 
         /// <summary>

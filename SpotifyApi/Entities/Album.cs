@@ -12,5 +12,7 @@ namespace SpotifyApi.Entities
         public double Popularity { get; internal set; }
         public string ArtistUri { get; internal set; }
         public string Uri { get; internal set; }
+
+        public IEnumerable<Track> Tracks { get; set; }
     }
 }

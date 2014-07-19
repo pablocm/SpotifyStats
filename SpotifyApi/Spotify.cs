@@ -16,6 +16,7 @@ namespace SpotifyApi
         private const string artistSearchFormat = "search/1/artist.xml?q={0}";
         private const string albumSearchFormat = "search/1/album.xml?q={0}";
         private const string trackSearchFormat = "search/1/track.xml?q={0}";
+        private const string lookupExtrasFormat = "lookup/1/?uri={0}&extras={1}";
         private const string ns = "{http://www.spotify.com/ns/music/1}";
 
         public Spotify()
@@ -95,6 +96,56 @@ namespace SpotifyApi
                          };
 
             return tracks;
+        }
+
+        /// <summary>
+        /// Look up detailed artist info, including albums and tracks, from the URI.
+        /// </summary>
+        /// <param name="artistUri">Spotify artist URI</param>
+        public async Task<Artist> LookupArtistAsync(string artistUri)
+        {
+            XDocument document = await DoApiRequestAsync(String.Format(lookupExtrasFormat, artistUri, "album"));
+            var artists = from artist in document.Descendants(ns + "artist")
+                         select new Artist
+                         {
+                             Name = artist.Element(ns + "name").Value,
+                             //Popularity = Double.Parse(artist.Element(ns + "popularity").Value),
+                             Uri = artistUri,
+                             Albums = from album in artist.Element(ns + "albums").Descendants(ns + "album")
+                                      select LookupAlbumAsync(album.Attribute("href").Value).Result
+                         };
+
+            return artists.FirstOrDefault();
+        }
+
+        /// <summary>
+        /// Look up detailed album info from the URI.
+        /// </summary>
+        /// <param name="albumUri">Spotify album URI</param>
+        public async Task<Album> LookupAlbumAsync(string albumUri)
+        {
+            XDocument document = await DoApiRequestAsync(String.Format(lookupExtrasFormat, albumUri, "trackdetail"));
+            var albums = from album in document.Descendants(ns + "album")
+                         select new Album
+                         {
+                             Name = album.Element(ns + "name").Value,
+                             //Popularity = Double.Parse(album.Element(ns + "popularity").Value),
+                             ArtistUri = album.Elements(ns + "artist").First().Attribute("href") != null ? album.Elements(ns + "artist").First().Attribute("href").Value : String.Empty,
+                             Uri = albumUri,
+                             Tracks = from track in album.Element(ns + "tracks").Elements()
+                                      select new Track
+                                      {
+                                          Name = track.Element(ns + "name").Value,
+                                          Popularity = Double.Parse(track.Element(ns + "popularity").Value),
+                                          ArtistUri = track.Elements(ns + "artist").First().Attribute("href").Value,
+                                          AlbumUri = albumUri,
+                                          TrackNumber = Int32.Parse(track.Element(ns + "track-number").Value),
+                                          Length = Double.Parse(track.Element(ns + "length").Value),
+                                          Uri = track.Attribute("href").Value
+                                      }
+                         };
+
+            return albums.FirstOrDefault();
         }
     }
 }

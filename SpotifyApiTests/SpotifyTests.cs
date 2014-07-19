@@ -24,9 +24,10 @@ namespace SpotifyTests
         {
             Spotify api = new Spotify();
 
-            var artistResults = api.FindArtistAsync("Savant");
-            var artist = artistResults.Result.OrderByDescending(a => a.Popularity).First();
-            Assert.IsTrue(artist.Name == "Savant" && artist.Uri == "spotify:artist:5RBdF1pJSLF3ugc2Y2PoB8");
+            var artistResults = api.FindArtistAsync("Savant").Result;
+            var artist = artistResults.OrderByDescending(a => a.Popularity).First();
+            Assert.AreEqual("Savant", artist.Name);
+            Assert.AreEqual("spotify:artist:5RBdF1pJSLF3ugc2Y2PoB8", artist.Uri);
         }
 
         [TestMethod]
@@ -43,11 +44,11 @@ namespace SpotifyTests
         {
             Spotify api = new Spotify();
 
-            var albumResults = api.FindAlbumAsync("Under The Table And Dreaming");
-            var album = albumResults.Result.OrderByDescending(a => a.Popularity).First();
-            Assert.IsTrue(album.Name == "Under The Table And Dreaming" && 
-                album.Uri == "spotify:album:3eAA4fvTVttgUlE43vRVMq" && 
-                album.ArtistUri == "spotify:artist:2TI7qyDE0QfyOlnbtfDo7L");
+            var albumResults = api.FindAlbumAsync("Under The Table And Dreaming").Result;
+            var album = albumResults.OrderByDescending(a => a.Popularity).First();
+            Assert.AreEqual("Under The Table And Dreaming", album.Name);
+            Assert.AreEqual("spotify:album:3eAA4fvTVttgUlE43vRVMq", album.Uri);
+            Assert.AreEqual("spotify:artist:2TI7qyDE0QfyOlnbtfDo7L", album.ArtistUri);
         }
 
         [TestMethod]
@@ -64,12 +65,27 @@ namespace SpotifyTests
         {
             Spotify api = new Spotify();
 
-            var trackResults = api.FindTrackAsync("Moon Trance");
-            var track = trackResults.Result.OrderByDescending(a => a.Popularity).First();
-            Assert.IsTrue(track.Name == "Moon Trance" &&
-                track.Uri == "spotify:track:3hG8BApT5ep4mdGleYiCdL" &&
-                track.ArtistUri == "spotify:artist:378dH6EszOLFShpRzAQkVM" &&
-                track.AlbumUri == "spotify:album:3YTWAm90osBvLNWCdF8Nq2");
+            var trackResults = api.FindTrackAsync("Moon Trance").Result;
+            var track = trackResults.OrderByDescending(a => a.Popularity).First();
+            Assert.AreEqual("Moon Trance", track.Name);
+            Assert.AreEqual("spotify:track:3hG8BApT5ep4mdGleYiCdL", track.Uri);
+            Assert.AreEqual("spotify:artist:378dH6EszOLFShpRzAQkVM", track.ArtistUri);
+            Assert.AreEqual("spotify:album:3YTWAm90osBvLNWCdF8Nq2", track.AlbumUri);
+        }
+
+        [TestMethod]
+        public void ArtistLookupCorrectResult()
+        {
+            Spotify api = new Spotify();
+            string artistUri = "spotify:artist:3mLG4odhlcwpfXIYjWh5TT";
+
+            var artistDetail = api.LookupArtistAsync(artistUri).Result;
+            Assert.AreEqual("Souleye", artistDetail.Name);
+            Assert.IsTrue(artistDetail.Albums.Count() > 1);
+            Assert.AreEqual(artistUri, artistDetail.Albums.First().ArtistUri);
+            Assert.IsTrue(artistDetail.Albums.First().Tracks.Count() > 0);
+            // This doesnt pass for every artist & album (Spotify has some inconsistencies)
+            //Assert.AreEqual(artistUri, artistDetail.Albums.First().Tracks.First().ArtistUri);
         }
     }
 }
