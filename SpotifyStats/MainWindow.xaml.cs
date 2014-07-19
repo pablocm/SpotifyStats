@@ -14,6 +14,7 @@ using System.Windows.Navigation;
 using System.Windows.Shapes;
 using SpotifyApi;
 using SpotifyApi.Entities;
+using System.Net;
 
 namespace SpotifyStats
 {
@@ -27,9 +28,11 @@ namespace SpotifyStats
         public MainWindow()
         {
             InitializeComponent();
-            progressBar.Visibility = System.Windows.Visibility.Collapsed;
         }
 
+        /// <summary>
+        /// Updates the search results while user enters text.
+        /// </summary>
         private async void searchTextBox_TextChanged(object sender, TextChangedEventArgs e)
         {
             string query = searchTextBox.Text.Trim();
@@ -38,12 +41,31 @@ namespace SpotifyStats
 
             searchInProgress = true;
             progressBar.Visibility = System.Windows.Visibility.Visible;
-            var api = new Spotify();
-            var artists = await api.FindArtistAsync(query);
+            try
+            {
+                var api = new Spotify();
+                var artists = await api.FindArtistAsync(query);
 
-            resultsListBox.ItemsSource = artists;
-            progressBar.Visibility = System.Windows.Visibility.Collapsed;
-            searchInProgress = false;
+                resultsListBox.ItemsSource = artists;
+            }
+            catch(WebException ex)
+            {
+                MessageBox.Show("Error while retrieving data: " + ex.Message);
+            }
+            finally
+            {
+                progressBar.Visibility = System.Windows.Visibility.Hidden;
+                searchInProgress = false;
+            }
+        }
+
+        /// <summary>
+        /// Downloads the currently selected artist's data.
+        /// </summary>
+        private void DownloadButton_Click(object sender, RoutedEventArgs e)
+        {
+            var btn = (Button)sender;
+            MessageBox.Show(btn.Tag.ToString());
         }
     }
 }

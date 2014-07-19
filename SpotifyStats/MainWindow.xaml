@@ -3,23 +3,29 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:Entities="clr-namespace:SpotifyApi.Entities;assembly=SpotifyApi" x:Class="SpotifyStats.MainWindow"
         Title="MainWindow" Height="350" Width="525">
+    <Window.Resources>
+        <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
+    </Window.Resources>
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="36"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
-        <StackPanel HorizontalAlignment="Stretch" Margin="0,0,0,0" Orientation="Horizontal" VerticalAlignment="Stretch">
-            <TextBlock HorizontalAlignment="Left" TextWrapping="Wrap" Text="Search artists:" VerticalAlignment="Center"/>
-            <TextBox x:Name="searchTextBox" Margin="5" TextWrapping="Wrap" Text="" Width="120" VerticalContentAlignment="Center" TextChanged="searchTextBox_TextChanged"/>
+        <StackPanel HorizontalAlignment="Stretch" Margin="0" Orientation="Horizontal" VerticalAlignment="Stretch">
+            <TextBlock HorizontalAlignment="Left" Margin="10,0" TextWrapping="Wrap" Text="Search artists:" VerticalAlignment="Center"/>
+            <TextBox x:Name="searchTextBox" Margin="0,5" TextWrapping="Wrap" Text="" Width="120" VerticalContentAlignment="Center" TextChanged="searchTextBox_TextChanged"/>
         </StackPanel>
-        <ProgressBar x:Name="progressBar" HorizontalAlignment="Right" Height="10" Margin="10" VerticalAlignment="Center" Width="50" IsIndeterminate="True"/>
-        <ListBox x:Name="resultsListBox" HorizontalAlignment="Stretch" Margin="10" Grid.Row="1" VerticalAlignment="Stretch">
+        <ProgressBar x:Name="progressBar" HorizontalAlignment="Right" Height="10" Margin="10" VerticalAlignment="Center" Width="50" IsIndeterminate="True" Visibility="Hidden"/>
+        <ListBox x:Name="resultsListBox" HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch"  Margin="10" Grid.Row="1" VerticalAlignment="Stretch">
             <ListBox.ItemTemplate>
                 <DataTemplate>
-                    <StackPanel>
-                        <TextBlock Text="{Binding Name}" />
-                        <TextBlock Text="{Binding Popularity}" />
-                    </StackPanel>
+                    <Grid Margin="0">
+                        <StackPanel>
+                            <TextBlock Text="{Binding Name}" />
+                            <TextBlock Text="{Binding Popularity}" />
+                        </StackPanel>
+                        <Button HorizontalAlignment="Right" VerticalAlignment="Center" Tag="{Binding Uri}" Visibility="{Binding IsMouseOver, Converter={StaticResource BooleanToVisibilityConverter}, Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Grid}}}" Content="Download" Click="DownloadButton_Click"/>
+                    </Grid>
                 </DataTemplate>
             </ListBox.ItemTemplate>
         </ListBox>
