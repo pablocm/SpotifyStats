@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data.Entity;
 using System.Linq;
 using System.Net;
 using System.Text;
@@ -33,11 +34,11 @@ namespace SpotifyStats
         /// <summary>
         /// Connects to database and displays downloaded artists.
         /// </summary>
-        private void Window_Loaded(object sender, RoutedEventArgs e)
+        private async void Window_Loaded(object sender, RoutedEventArgs e)
         {
             using (AppDbContext db = new AppDbContext())
             {
-                downloadedListBox.ItemsSource = db.Artists.OrderBy(a => a.Name).ToList();
+                downloadedListBox.ItemsSource = await db.Artists.OrderBy(a => a.Name).ToListAsync();
             }
         }
 
