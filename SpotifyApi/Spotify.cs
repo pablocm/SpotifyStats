@@ -146,7 +146,7 @@ namespace SpotifyApi
                                       {
                                           Name = track.Element(ns + "name").Value,
                                           Popularity = Double.Parse(track.Element(ns + "popularity").Value),
-                                          ArtistUri = track.Elements(ns + "artist").First().Attribute("href").Value,
+                                          ArtistUri = track.Elements(ns + "artist").First().Attribute("href") != null ? track.Elements(ns + "artist").First().Attribute("href").Value : String.Empty,
                                           AlbumUri = albumUri,
                                           TrackNumber = Int32.Parse(track.Element(ns + "track-number").Value),
                                           Length = Double.Parse(track.Element(ns + "length").Value),

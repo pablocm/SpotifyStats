@@ -69,6 +69,7 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Db\Album.cs" />
+    <Compile Include="Db\AlbumSummary.cs" />
     <Compile Include="Db\AppDbContext.cs" />
     <Compile Include="Db\Artist.cs" />
     <Compile Include="Db\ArtistRepository.cs" />

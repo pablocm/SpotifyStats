@@ -22,5 +22,13 @@ namespace SpotifyStats.Db
 
         public Artist Artist { get; set; }
         public Album Album { get; set; }
+
+        public string LongName
+        {
+            get
+            {
+                return String.Format("{0} ({1}:{2})", Name, (int)Length / 60, (int)Length % 60);
+            }
+        }
     }
 }

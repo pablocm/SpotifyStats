@@ -24,7 +24,6 @@ namespace SpotifyStats
     /// </summary>
     public partial class MainWindow : Window
     {
-        bool searchInProgress = false;
         int workingTasks = 0;
 
         public MainWindow()
@@ -49,7 +48,10 @@ namespace SpotifyStats
         {
             workingTasks--;
             if (workingTasks == 0)
+            {
                 progressBar.Visibility = System.Windows.Visibility.Hidden;
+                statusText.Text = "Ready.";
+            }
         }
 
         /// <summary>
@@ -69,10 +71,9 @@ namespace SpotifyStats
         private async void searchTextBox_TextChanged(object sender, TextChangedEventArgs e)
         {
             string query = searchTextBox.Text.Trim();
-            if (String.IsNullOrEmpty(query) || searchInProgress)
+            if (String.IsNullOrEmpty(query))
                 return;
 
-            searchInProgress = true;
             WorkStarted();
             try
             {
@@ -88,7 +89,6 @@ namespace SpotifyStats
             finally
             {
                 WorkFinished();
-                searchInProgress = false;
             }
         }
 
@@ -108,10 +108,12 @@ namespace SpotifyStats
                 if ((await db.Artists.FindAsync(artistUri)) == null)
                 {
                     // Download data
+                    statusText.Text = String.Format("{0} downloads pending...", workingTasks);
                     var api = new Spotify();
                     var artist = await api.LookupArtistAsync(btn.Tag.ToString());
 
                     // Save the data
+                    statusText.Text = String.Format("Saving {0} into database...", artist.Name);
                     ArtistRepository ar = new ArtistRepository(db);
                     await ar.SaveSpotifyArtistAsync(artist);
 
@@ -125,11 +127,22 @@ namespace SpotifyStats
         /// <summary>
         /// Load artist summary and stats into view.
         /// </summary>
-        private void downloadedListBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        private async void downloadedListBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            var artist = (Artist)e.AddedItems[0];
-            // TODO
-            MessageBox.Show(artist.Name);
+            if (e.AddedItems.Count > 0)
+            {
+                var artist = (Artist)e.AddedItems[0];
+
+                artistNameTextBlock.Text = artist.Name;
+                albumsListBox.ItemsSource = null;
+                using (var db = new AppDbContext())
+                {
+                    var repository = new ArtistRepository(db);
+
+                    var albumSummary = await repository.GetArtistAlbumsSummary(artist.Uri);
+                    albumsListBox.ItemsSource = albumSummary;
+                }
+            }
         }
     }
 }

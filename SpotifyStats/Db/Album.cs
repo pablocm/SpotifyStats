@@ -20,5 +20,13 @@ namespace SpotifyStats.Db
 
         public Artist Artist { get; set; }
         public virtual ICollection<Track> Tracks { get; set; }
+
+        public string LongName
+        {
+            get
+            {
+                return String.Format("{0} ({1})", Name, Released);
+            }
+        }
     }
 }
