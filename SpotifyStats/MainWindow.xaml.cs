@@ -59,6 +59,7 @@ namespace SpotifyStats
         /// </summary>
         private async void Window_Loaded(object sender, RoutedEventArgs e)
         {
+            // Populate the listbox with the currently downloaded artists.
             using (AppDbContext db = new AppDbContext())
             {
                 downloadedListBox.ItemsSource = await db.Artists.OrderBy(a => a.Name).ToListAsync();
@@ -66,9 +67,26 @@ namespace SpotifyStats
         }
 
         /// <summary>
-        /// Updates the search results while user enters text.
+        /// Updates the search results.
         /// </summary>
-        private async void searchTextBox_TextChanged(object sender, TextChangedEventArgs e)
+        private async void Button_Search_Click(object sender, RoutedEventArgs e)
+        {
+            await UpdateSearchResults();
+        }
+
+        /// <summary>
+        /// Updates the search results when the user presses Enter.
+        /// </summary>
+        private async void searchTextBox_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.Key == Key.Enter)
+                await UpdateSearchResults();
+        }
+
+        /// <summary>
+        /// Updates the search results with the query.
+        /// </summary>
+        private async Task UpdateSearchResults()
         {
             string query = searchTextBox.Text.Trim();
             if (String.IsNullOrEmpty(query))
@@ -82,9 +100,9 @@ namespace SpotifyStats
 
                 resultsListBox.ItemsSource = artists;
             }
-            catch(WebException ex)
+            catch (WebException ex)
             {
-                MessageBox.Show("Error while retrieving data: " + ex.Message);
+                MessageBox.Show("Web error while retrieving data: " + ex.Message);
             }
             finally
             {
@@ -108,17 +126,32 @@ namespace SpotifyStats
                 if ((await db.Artists.FindAsync(artistUri)) == null)
                 {
                     // Download data
-                    statusText.Text = String.Format("{0} downloads pending...", workingTasks);
-                    var api = new Spotify();
-                    var artist = await api.LookupArtistAsync(btn.Tag.ToString());
+                    try
+                    {
+                        statusText.Text = String.Format("{0} downloads pending...", workingTasks);
+                        var api = new Spotify();
+                        var artist = await api.LookupArtistAsync(btn.Tag.ToString());
 
-                    // Save the data
-                    statusText.Text = String.Format("Saving {0} into database...", artist.Name);
-                    ArtistRepository ar = new ArtistRepository(db);
-                    await ar.SaveSpotifyArtistAsync(artist);
+                        // Save the data
+                        statusText.Text = String.Format("Saving {0} into database...", artist.Name);
+                        ArtistRepository ar = new ArtistRepository(db);
+                        await ar.SaveSpotifyArtistAsync(artist);
 
-                    // Refresh the viewlist
-                    downloadedListBox.ItemsSource = await db.Artists.OrderBy(a => a.Name).ToListAsync();
+                        // Refresh the viewlist
+                        downloadedListBox.ItemsSource = await db.Artists.OrderBy(a => a.Name).ToListAsync();
+                    }
+                    catch (WebException ex)
+                    {
+                        MessageBox.Show("Web error while retrieving data: " + ex.Message);
+                    }
+                    catch (System.Data.Entity.Infrastructure.DbUpdateException ex)
+                    {
+                        MessageBox.Show("Error while saving to DB: " + ex.Message);
+                    }
+                    catch (Exception ex)
+                    {
+                        MessageBox.Show("An error occurred: " + ex.Message);
+                    }
                 }
             }
             WorkFinished();

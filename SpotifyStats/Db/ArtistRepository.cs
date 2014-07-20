@@ -23,13 +23,14 @@ namespace SpotifyStats.Db
         /// <param name="artistUri">The spotify artist URI</param>
         public async Task<List<AlbumSummary>> GetArtistAlbumsSummary(string artistUri)
         {
+            // This Linq expression compiles to a single Sql query.
             var summary = from al in context.Albums
                           where al.ArtistUri == artistUri
                           orderby al.Released descending
                           select new AlbumSummary
                           {
                               Album = al,
-                              AveragePopularity = al.Tracks.Average(t => t.Popularity),
+                              AveragePopularity = (int)(al.Tracks.Average(t => t.Popularity) * 100),
                               LongestTrack = al.Tracks.OrderByDescending(t => t.Length).FirstOrDefault()
                           };
             return await summary.ToListAsync();
@@ -46,20 +47,20 @@ namespace SpotifyStats.Db
                 Uri = spotifyArtist.Uri,
                 Name = spotifyArtist.Name,
                 Popularity = spotifyArtist.Popularity,
-                //Albums = new List<Album>(),
-                //Tracks = new List<Track>()
             };
             context.Artists.Add(artist);
 
             // Create the albums
             foreach (var spotifyAlbum in spotifyArtist.Albums)
             {
+                if (context.Albums.Where(a => a.Uri == spotifyAlbum.Uri).Count() > 0)
+                    continue;
+
                 Album album = new Album
                 {
                     Uri = spotifyAlbum.Uri,
                     Name = spotifyAlbum.Name,
                     Released = spotifyAlbum.Released,
-                    //Tracks = new List<Track>()
                     ArtistUri = artist.Uri
                 };
                 context.Albums.Add(album);
@@ -78,15 +79,10 @@ namespace SpotifyStats.Db
                         ArtistUri = artist.Uri
                     };
                     context.Tracks.Add(track);
-
-                    //album.Tracks.Add(track);
-                    //artist.Tracks.Add(track);
                 }
-                //artist.Albums.Add(album);
+                // Commit album
+                await context.SaveChangesAsync();
             }
-
-            // Commit
-            await context.SaveChangesAsync();
         }
     }
 }
