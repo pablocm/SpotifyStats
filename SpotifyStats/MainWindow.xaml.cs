@@ -177,5 +177,23 @@ namespace SpotifyStats
                 }
             }
         }
+
+        /// <summary>
+        /// Load album's tracks.
+        /// </summary>
+        private async void albumsListBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (e.AddedItems.Count > 0)
+            {
+                var albumSummary = (AlbumSummary)e.AddedItems[0];
+
+                tracksListBox.ItemsSource = null;
+                using (var db = new AppDbContext())
+                {
+                    var tracks = await db.Tracks.Where(t => t.AlbumUri == albumSummary.Album.Uri).OrderBy(t => t.TrackNumber).ToListAsync();
+                    tracksListBox.ItemsSource = tracks;
+                }
+            }
+        }
     }
 }

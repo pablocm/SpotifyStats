@@ -27,7 +27,7 @@ namespace SpotifyStats.Db
         {
             get
             {
-                return String.Format("{0} ({1}:{2})", Name, (int)Length / 60, (int)Length % 60);
+                return String.Format("{0} ({1}:{2:00})", Name, (int)Length / 60, (int)Length % 60);
             }
         }
     }
