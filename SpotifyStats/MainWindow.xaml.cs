@@ -60,9 +60,17 @@ namespace SpotifyStats
         private async void Window_Loaded(object sender, RoutedEventArgs e)
         {
             // Populate the listbox with the currently downloaded artists.
-            using (AppDbContext db = new AppDbContext())
+            try
             {
-                downloadedListBox.ItemsSource = await db.Artists.OrderBy(a => a.Name).ToListAsync();
+                using (AppDbContext db = new AppDbContext())
+                {
+                    downloadedListBox.ItemsSource = await db.Artists.OrderBy(a => a.Name).ToListAsync();
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("An exception occurred while connecting to the Database: " + ex.Message);
+                this.Close();
             }
         }
 
